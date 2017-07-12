@@ -1,0 +1,31 @@
+{
+    "env": {
+        "es": {
+            "presets": [
+                [
+                    "es2015",
+                    {
+                        "loose": true,
+                        "modules": false
+                    }
+                ]
+            ]
+        },
+        "cjs": {
+            "presets": [
+                [
+                    "es2015",
+                    {
+                        "loose": true,
+                        "modules": "commonjs"
+                    }
+                ]
+            ],
+            "plugins": [
+                [
+                    "add-module-exports"
+                ]
+            ]
+        }
+    }
+}
