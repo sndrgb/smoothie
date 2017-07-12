@@ -13,7 +13,7 @@ const keyCodes = {
     SPACE: 32
 };
 
-document.innerHTML = "bro";
+document.body.innerHTML = "bro";
 
 
 class Smoothie {
