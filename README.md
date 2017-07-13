@@ -1,11 +1,6 @@
 Smoothie
 =====
-Smooth scroll utility based on VirtualScroll by Florian Morel
-
-### Installation
-```
-npm i smoothie -S
-```
+Smooth scroll utility inspired and writte on top of smooth-scrolling by Baptiste Briel and VirtualScroll by Florian Morel
 
 ### API
 - `new Smoothie(options)`
