@@ -1,3 +1,7 @@
-const smoothie = require('/example/js/index.js');
+const Smoothie = window.smoothie;
 
-console.log(smoothie);
+const smoothie = new Smoothie({
+    native: false,
+});
+
+smoothie.init();

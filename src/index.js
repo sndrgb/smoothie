@@ -1,222 +1,311 @@
-const Emitter = require('tiny-emitter');
-const Lethargy = require('lethargy').Lethargy;
-const support = require('./support');
-const clone = require('./clone');
-const bindAll = require('bindall-standalone');
+import classie from 'classie';
+import create from 'dom-create-element';
+import prefix from 'prefix';
+import event from 'dom-events';
 
-const EVT_ID = 'smoothie';
-const keyCodes = {
-    LEFT: 37,
-    UP: 38,
-    RIGHT: 39,
-    DOWN: 40,
-    SPACE: 32
-};
-
-document.body.innerHTML = "bro";
-
+import Hijack from './hijack';
 
 class Smoothie {
-    constructor(options) {
-        bindAll(this, '_onWheel', '_onMouseWheel', '_onTouchStart', '_onTouchMove', '_onKeyDown');
+    constructor(opt = {}) {
+        this.createBound();
 
-        this.el = window;
+        this.options = opt;
 
-        if (options && options.el) {
-            this.el = options.el;
-            delete options.el;
-        }
+        this.prefix = prefix('transform');
+        this.rAF = undefined;
 
-        this.options = Object.assign({
-            mouseMultiplier: 1,
-            touchMultiplier: 2,
-            firefoxMultiplier: 15,
-            keyStep: 120,
-            preventTouch: false,
-            unpreventTouchClass: 'vs-touchmove-allowed',
-            limitInertia: false
-        }, options);
+        /* It seems that under heavy load, Firefox will still call the RAF callback even though the
+        RAF has been canceled
+        To prevent that we set a flag to prevent any callback to be executed when RAF is removed */
+        this.isRAFCanceled = false;
 
-        if (this.options.limitInertia) this.lethargy = new Lethargy();
+        const constructorName = this.constructor.name ? this.constructor.name : 'Smoothie';
+        this.extends = constructorName !== 'Smoothie';
 
-        this.emitter = new Emitter();
-        this.event = {
-            y: 0,
-            x: 0,
-            deltaX: 0,
-            deltaY: 0
+        this.vars = {
+            direction: this.options.direction || 'vertical',
+            native: this.options.native || false,
+            ease: this.options.ease || 0.075,
+            preload: this.options.preload || false,
+            current: 0,
+            target: 0,
+            height: window.innerHeight,
+            width: window.innerWidth,
+            bounding: 0,
+            timer: null,
+            ticking: false
         };
-        this.touchStartX = null;
-        this.touchStartY = null;
-        this.bodyTouchAction = null;
 
-        if (this.options.passive !== undefined) {
-            this.listenerOptions = { passive: this.options.passive };
-        }
+        this.hijack = this.vars.native ? null : new Hijack({
+            limitInertia: this.options.vs && this.options.vs.limitInertia || false,
+            mouseMultiplier: this.options.vs && this.options.vs.mouseMultiplier || 1,
+            touchMultiplier: this.options.vs && this.options.vs.touchMultiplier || 1.5,
+            firefoxMultiplier: this.options.vs && this.options.vs.firefoxMultiplier || 30,
+            preventTouch: this.options.vs && this.options.vs.preventTouch || true
+        });
+
+        this.dom = {
+            listener: this.options.listener || document.body,
+            section: this.options.section || document.querySelector('.smoothie') || null,
+            scrollbar: this.vars.native || this.options.noscrollbar ? null : {
+                state: {
+                    clicked: false,
+                    x: 0
+                },
+                el: create({ selector: 'div', styles: `vs-scrollbar vs-${this.vars.direction} vs-scrollbar-${constructorName.toLowerCase()}` }),
+                drag: {
+                    el: create({ selector: 'div', styles: 'vs-scrolldrag' }),
+                    delta: 0,
+                    height: 50
+                }
+            }
+        };
     }
 
-    _notify(e) {
-        const evt = this.event;
-        evt.x += evt.deltaX;
-        evt.y += evt.deltaY;
+    createBound() {
+        ['run', 'calc', 'debounce', 'resize', 'mouseUp', 'mouseDown', 'mouseMove', 'calcScroll', 'scrollTo']
+        .forEach((fn) => { this[fn] = this[fn].bind(this); });
+    }
 
-        this.emitter.emit(EVT_ID, {
-                x: evt.x,
-                y: evt.y,
-                deltaX: evt.deltaX,
-                deltaY: evt.deltaY,
-                originalEvent: e
+    init() {
+        this.addClasses();
+
+        this.vars.preload && this.preloadImages();
+        this.vars.native ? this.addFakeScrollHeight() : !this.options.noscrollbar && this.addFakeScrollBar();
+
+        this.addEvents();
+        this.resize();
+    }
+
+    addClasses() {
+        const type = this.vars.native ? 'native' : 'virtual';
+        const direction = this.vars.direction === 'vertical' ? 'y' : 'x';
+
+        classie.add(this.dom.listener, `is-${type}-scroll`);
+        classie.add(this.dom.listener, `${direction}-scroll`);
+    }
+
+    preloadImages() {
+        const images = Array.prototype.slice.call(this.dom.listener.querySelectorAll('img'), 0);
+
+        images.forEach((image) => {
+            const img = document.createElement('img');
+
+            event.once(img, 'load', () => {
+                images.splice(images.indexOf(image), 1);
+                images.length === 0 && this.resize();
+            });
+
+            img.src = image.getAttribute('src');
         });
     }
 
-    _onWheel(e) {
-        const options = this.options;
-        if (this.lethargy && this.lethargy.check(e) === false) return;
-        const evt = this.event;
+    calc(e) {
+        const delta = this.vars.direction === 'horizontal' ? e.deltaX : e.deltaY;
 
-        // In Chrome and in Firefox (at least the new one)
-        evt.deltaX = e.wheelDeltaX || e.deltaX * -1;
-        evt.deltaY = e.wheelDeltaY || e.deltaY * -1;
+        this.vars.target += delta * -1;
+        this.clampTarget();
 
-        // for our purpose deltamode = 1 means user is on a wheel mouse, not touch pad
-        // real meaning: https://developer.mozilla.org/en-US/docs/Web/API/WheelEvent#Delta_modes
-        if(support.isFirefox && e.deltaMode == 1) {
-            evt.deltaX *= options.firefoxMultiplier;
-            evt.deltaY *= options.firefoxMultiplier;
+        console.log(this.vars.bounding, delta);
+    }
+
+    debounce() {
+        const win = this.dom.listener === document.body;
+
+        this.vars.target = this.vars.direction === 'vertical' ? win ? window.scrollY || window.pageYOffset : this.dom.listener.scrollTop : win ? window.scrollX || window.pageXOffset : this.dom.listener.scrollLeft
+
+        clearTimeout(this.vars.timer);
+
+        if (!this.vars.ticking) {
+            this.vars.ticking = true;
+            classie.add(this.dom.listener, 'is-scrolling');
         }
 
-        evt.deltaX *= options.mouseMultiplier;
-        evt.deltaY *= options.mouseMultiplier;
-
-        this._notify(e);
+        this.vars.timer = setTimeout(() => {
+            this.vars.ticking = false;
+            classie.remove(this.dom.listener, 'is-scrolling');
+        }, 200);
     }
 
-    _onMouseWheel(e) {
-        if (this.options.limitInertia && this.lethargy.check(e) === false) return;
+    run() {
+        if (this.isRAFCanceled) return;
 
-        const evt = this.event;
+        this.vars.current += (this.vars.target - this.vars.current) * this.vars.ease;
+        this.vars.current < 0.1 && (this.vars.current = 0);
 
-        // In Safari, IE and in Chrome if 'wheel' isn't defined
-        evt.deltaX = (e.wheelDeltaX) ? e.wheelDeltaX : 0;
-        evt.deltaY = (e.wheelDeltaY) ? e.wheelDeltaY : e.wheelDelta;
+        this.rAF = requestAnimationFrame(this.run);
 
-        this._notify(e);
-    }
-
-    _onTouchStart(e) {
-        const t = (e.targetTouches) ? e.targetTouches[0] : e;
-        this.touchStartX = t.pageX;
-        this.touchStartY = t.pageY;
-    }
-
-    _onTouchMove(e) {
-        const options = this.options;
-        if(options.preventTouch
-            && !e.target.classList.contains(options.unpreventTouchClass)) {
-            e.preventDefault();
+        if (!this.extends) {
+            this.dom.section.style[this.prefix] = this.getTransform(-this.vars.current.toFixed(2))
         }
 
-        const evt = this.event;
+        if (!this.vars.native && !this.options.noscrollbar) {
+            const size = this.dom.scrollbar.drag.height;
+            const bounds = this.vars.direction === 'vertical' ? this.vars.height : this.vars.width;
+            const value = (Math.abs(this.vars.current) / (this.vars.bounding / (bounds - size))) + (size / 0.5) - size;
+            const clamp = Math.max(0, Math.min(value - size, value + size));
 
-        const t = (e.targetTouches) ? e.targetTouches[0] : e;
-
-        evt.deltaX = (t.pageX - this.touchStartX) * options.touchMultiplier;
-        evt.deltaY = (t.pageY - this.touchStartY) * options.touchMultiplier;
-
-        this.touchStartX = t.pageX;
-        this.touchStartY = t.pageY;
-
-        this._notify(e);
+            this.dom.scrollbar.drag.el.style[this.prefix] = this.getTransform(clamp.toFixed(2));
+        }
     }
 
-    _onKeyDown(e) {
-        const evt = this.event;
-        evt.deltaX = evt.deltaY = 0;
-        const windowHeight = window.innerHeight - 40
+    getTransform(value) {
+        return this.vars.direction === 'vertical' ? 'translate3d(0,' + value + 'px,0)' : 'translate3d(' + value + 'px,0,0)';
+    }
 
-        switch(e.keyCode) {
-            case keyCodes.LEFT:
-            case keyCodes.UP:
-                evt.deltaY = this.options.keyStep;
-                break;
-
-            case keyCodes.RIGHT:
-            case keyCodes.DOWN:
-                evt.deltaY = - this.options.keyStep;
-                break;
-            case keyCodes.SPACE && e.shiftKey:
-                evt.deltaY = windowHeight;
-                break;
-            case keyCodes.SPACE:
-                evt.deltaY = - windowHeight;
-                break;
-            default:
-                return;
+    on(requestAnimationFrame = true) {
+        if (this.isRAFCanceled) {
+            this.isRAFCanceled = false;
         }
 
-        this._notify(e);
+        const node = this.dom.listener === document.body ? window : this.dom.listener;
+        // this.vars.native ? event.on(node, 'scroll', this.debounce) : (this.hijack && this.hijack.on(this.calc));
+        this.hijack.on(this.calc);
+
+        requestAnimationFrame && this.requestAnimationFrame();
     }
 
-    _bind() {
-        if(support.hasWheelEvent) this.el.addEventListener('wheel', this._onWheel, this.listenerOptions);
-        if(support.hasMouseWheelEvent) this.el.addEventListener('mousewheel', this._onMouseWheel, this.listenerOptions);
+    off(cancelAnimationFrame = true) {
+        const node = this.dom.listener === document.body ? window : this.dom.listener;
 
-        if(support.hasTouch) {
-            this.el.addEventListener('touchstart', this._onTouchStart, this.listenerOptions);
-            this.el.addEventListener('touchmove', this._onTouchMove, this.listenerOptions);
+        this.vars.native ? event.off(node, 'scroll', this.debounce) : (this.hijack && this.hijack.off(this.calc));
+
+        cancelAnimationFrame && this.cancelAnimationFrame();
+    }
+
+    requestAnimationFrame() {
+        this.rAF = requestAnimationFrame(this.run);
+    }
+
+    cancelAnimationFrame() {
+        this.isRAFCanceled = true;
+        cancelAnimationFrame(this.rAF);
+    }
+
+    addEvents() {
+        this.on();
+        event.on(window, 'resize', this.resize);
+    }
+
+    removeEvents() {
+        this.off();
+
+        event.off(window, 'resize', this.resize);
+    }
+
+    addFakeScrollBar() {
+        this.dom.listener.appendChild(this.dom.scrollbar.el);
+        this.dom.scrollbar.el.appendChild(this.dom.scrollbar.drag.el);
+
+        event.on(this.dom.scrollbar.el, 'click', this.calcScroll);
+        event.on(this.dom.scrollbar.el, 'mousedown', this.mouseDown);
+
+        event.on(document, 'mousemove', this.mouseMove);
+        event.on(document, 'mouseup', this.mouseUp);
+    }
+
+    removeFakeScrollBar() {
+        event.off(this.dom.scrollbar.el, 'click', this.calcScroll);
+        event.off(this.dom.scrollbar.el, 'mousedown', this.mouseDown);
+
+        event.off(document, 'mousemove', this.mouseMove);
+        event.off(document, 'mouseup', this.mouseUp);
+
+        this.dom.listener.removeChild(this.dom.scrollbar.el);
+    }
+
+    mouseDown(e) {
+        e.preventDefault();
+        e.which === 1 && (this.dom.scrollbar.state.clicked = true);
+    }
+
+    mouseUp(e) {
+        this.dom.scrollbar.state.clicked = false;
+        classie.remove(this.dom.listener, 'is-dragging');
+    }
+
+    mouseMove(e) {
+        this.dom.scrollbar.state.clicked && this.calcScroll(e);
+    }
+
+    addFakeScrollHeight() {
+        this.dom.scroll = create({
+            selector: 'div',
+            styles: 'vs-scroll-view'
+        });
+
+        this.dom.listener.appendChild(this.dom.scroll);
+    }
+
+    removeFakeScrollHeight() {
+        this.dom.listener.removeChild(this.dom.scroll);
+    }
+
+    calcScroll(e) {
+        const client = this.vars.direction === 'vertical' ? e.clientY : e.clientX;
+        const bounds = this.vars.direction === 'vertical' ? this.vars.height : this.vars.width;
+        const delta = client * (this.vars.bounding / bounds);
+
+        classie.add(this.dom.listener, 'is-dragging');
+
+        this.vars.target = delta;
+        this.clampTarget();
+        this.dom.scrollbar && (this.dom.scrollbar.drag.delta = this.vars.target);
+    }
+
+    scrollTo(offset) {
+        if (this.vars.native) {
+            this.vars.direction === 'vertical' ? window.scrollTo(0, offset) : window.scrollTo(offset, 0);
+        } else {
+            this.vars.target = offset;
+            this.clampTarget();
+        }
+    }
+
+    resize() {  
+        const prop = this.vars.direction === 'vertical' ? 'height' : 'width';
+
+        this.vars.height = window.innerHeight;
+        this.vars.width = window.innerWidth;
+
+        if (!this.extends) {
+            const bounding = this.dom.section.getBoundingClientRect();
+            this.vars.bounding = this.vars.direction === 'vertical' ?
+                bounding.height - (this.vars.native ? 0 : this.vars.height) :
+                bounding.right - (this.vars.native ? 0 : this.vars.width);
+                console.log(bounding.height, this.vars.height);
         }
 
-        if(support.hasPointer && support.hasTouchWin) {
-            this.bodyTouchAction = document.body.style.msTouchAction;
-            document.body.style.msTouchAction = 'none';
-            this.el.addEventListener('MSPointerDown', this._onTouchStart, true);
-            this.el.addEventListener('MSPointerMove', this._onTouchMove, true);
+        if (!this.vars.native && !this.options.noscrollbar) {
+            this.dom.scrollbar.drag.height = this.vars.height * (this.vars.height / (this.vars.bounding + this.vars.height));
+            this.dom.scrollbar.drag.el.style[prop] = `${this.dom.scrollbar.drag.height}px`;
+        } else if (this.vars.native) {
+            this.dom.scroll.style[prop] = `${this.vars.bounding}px`;
         }
 
-        if(support.hasKeyDown) document.addEventListener('keydown', this._onKeyDown);
+        !this.vars.native && this.clampTarget();
     }
 
-    _unbind() {
-        if(support.hasWheelEvent) this.el.removeEventListener('wheel', this._onWheel);
-        if(support.hasMouseWheelEvent) this.el.removeEventListener('mousewheel', this._onMouseWheel);
-
-        if(support.hasTouch) {
-            this.el.removeEventListener('touchstart', this._onTouchStart);
-            this.el.removeEventListener('touchmove', this._onTouchMove);
-        }
-
-        if(support.hasPointer && support.hasTouchWin) {
-            document.body.style.msTouchAction = this.bodyTouchAction;
-            this.el.removeEventListener('MSPointerDown', this._onTouchStart, true);
-            this.el.removeEventListener('MSPointerMove', this._onTouchMove, true);
-        }
-
-        if(support.hasKeyDown) document.removeEventListener('keydown', this._onKeyDown);
-    }
-
-    on(cb, ctx) {
-        this.emitter.on(EVT_ID, cb, ctx);
-
-        const events = this.emitter.e;
-        if (events && events[EVT_ID] && events[EVT_ID].length === 1) this._bind();
-    }
-
-    off(cb, ctx) {
-        this.emitter.off(EVT_ID, cb, ctx);
-
-        const events = this.emitter.e;
-        if (!events[EVT_ID] || events[EVT_ID].length <= 0) this._unbind();
-    }
-
-    reset() {
-        const evt = this.event;
-        evt.x = 0;
-        evt.y = 0;
+    clampTarget() {
+        this.vars.target = Math.round(Math.max(0, Math.min(this.vars.target, this.vars.bounding)));
     }
 
     destroy() {
-        this.emitter.off();
-        this._unbind();
+        if (this.vars.native) {
+            classie.remove(this.dom.listener, 'is-native-scroll');
+
+            this.removeFakeScrollHeight();
+        } else {
+            classie.remove(this.dom.listener, 'is-virtual-scroll');
+
+            !this.options.noscrollbar && this.removeFakeScrollBar();
+        }
+
+        this.vars.direction === 'vertical' ? classie.remove(this.dom.listener, 'y-scroll') : classie.remove(this.dom.listener, 'x-scroll');
+        this.vars.current = 0;
+        this.hijack && (this.hijack.destroy(), this.hijack = null);
+
+        this.removeEvents();
     }
 }
 

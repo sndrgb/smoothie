@@ -4,7 +4,7 @@
   "description": "Smooth fake scroll using CSS transform",
   "main": "src/index.js",
   "scripts": {
-    "dev": "webpack-dev-server --hot --config ./webpack.config.js --inline",
+    "dev": "cross-env BABEL_ENV=cjs webpack-dev-server --hot --config ./webpack.config.js --inline",
     "build": "cross-env NODE_ENV=development webpack --config webpack.config.js",
     "build:min": "cross-env NODE_ENV=production webpack --config webpack.config.js"
   },
@@ -24,9 +24,13 @@
   },
   "homepage": "https://github.com/sndrgb/smoothie",
   "dependencies": {
-    "bindall-standalone": "^1.0.5",
+    "classie": "^1.0.0",
+    "dom-create-element": "^1.0.2",
+    "dom-events": "^0.1.1",
     "lethargy": "^1.0.2",
-    "tiny-emitter": "^1.0.0"
+    "mitt": "^1.1.2",
+    "prefix": "^1.0.0",
+    "tiny-emitter": "^2.0.1"
   },
   "devDependencies": {
     "babel-core": "^6.25.0",
@@ -42,11 +46,6 @@
     "eslint-loader": "^1.9.0",
     "eslint-plugin-import": "^2.7.0",
     "express": "^4.15.3",
-    "faucet": "0.0.1",
-    "smokestack": "^3.4.1",
-    "tap-closer": "^1.0.0",
-    "tape": "^4.6.3",
-    "tiny-trigger": "scottcorgan/tiny-trigger",
     "webpack": "^3.2.0",
     "webpack-dev-server": "^2.5.1"
   }

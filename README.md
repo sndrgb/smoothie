@@ -1,14 +1,13 @@
-smoothie
+Smoothie
 =====
+Smooth scroll utility based on VirtualScroll by Florian Morel
 
 ### Installation
 ```
 npm i smoothie -S
 ```
 
-### Usage & API
-For in-depth usage and tutorial, you can check Bartek's article (link above).
-
+### API
 - `new Smoothie(options)`
 Return a new instance of Smoothie. See the options below.
 

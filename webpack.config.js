@@ -50,11 +50,7 @@ module.exports = {
         contentBase: './example',
         hot: true,
         historyApiFallback: true,
-        setup(app) {
-            app.use('/example/js/',
-                express.static(path.join(__dirname, 'src'))
-            );
-        }
+        publicPath: '/dist/'
     },
 
     module: {
