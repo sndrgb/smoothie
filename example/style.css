@@ -12,7 +12,21 @@ body {
     overflow: hidden;
 }
 
-
 .smoothie {
-    min-height: 2000px;
+    min-height: 4000px;
+}
+
+.scrollbar-track {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 10px;
+    height: 100%;
+    background: lightgray;
+}
+
+.scrollbar {
+    position: absolute;
+    width: 100%;
+    background: firebrick;
 }

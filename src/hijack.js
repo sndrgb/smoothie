@@ -1,5 +1,5 @@
 import Emitter from 'tiny-emitter';
-import Lethargy from 'lethargy';
+import { Lethargy } from 'lethargy';
 
 import support from './utils/support';
 import clone from './utils/clone';
