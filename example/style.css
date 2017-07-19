@@ -14,19 +14,33 @@ body {
 
 .smoothie {
     min-height: 4000px;
+    will-change: transform;
 }
 
 .scrollbar-track {
-    position: absolute;
-    top: 0;
+    position: fixed;
+    top: 0%;
     right: 0;
-    width: 10px;
+    width: 100px;
     height: 100%;
     background: lightgray;
 }
 
 .scrollbar {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    background: firebrick;
+}
+
+.scrollbar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 20px;
+    background: yellow;
+    z-index: 1;
 }

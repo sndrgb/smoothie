@@ -6,7 +6,7 @@ import clone from './utils/clone';
 import bindAll from './utils/bindAll';
 
 const eventId = 'hijack';
-const keyCodes = { LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40, SPACE: 32 };
+const keyCodes = { LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40, SPACE: 32, PAGEUP: 33, PAGEDOWN: 34 };
 
 class Hijack {
     constructor(options) {
@@ -46,6 +46,8 @@ class Hijack {
             this.listenerOptions = { passive: this.options.passive };
         }
     }
+
+    init() {}
 
     notify(e) {
         const evt = this.event;
@@ -133,7 +135,6 @@ class Hijack {
         case keyCodes.UP:
             evt.deltaY = this.options.keyStep;
             break;
-
         case keyCodes.RIGHT:
         case keyCodes.DOWN:
             evt.deltaY = -this.options.keyStep;
@@ -143,6 +144,12 @@ class Hijack {
             break;
         case keyCodes.SPACE:
             evt.deltaY = -windowHeight;
+            break;
+        case keyCodes.PAGEUP:
+            evt.deltaY = this.options.keyStep * 4;
+            break;
+        case keyCodes.PAGEDOWN:
+            evt.deltaY = -this.options.keyStep * 4;
             break;
         default:
             return;

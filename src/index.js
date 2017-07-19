@@ -1,115 +1,107 @@
 import classie from 'classie';
-import prefix from 'prefix';
 import create from 'dom-create-element';
-import event from 'dom-events';
 
 import Hijack from './hijack';
 import Scrollbar from './scrollbar';
+import Component from './utils/component';
 import defaults from './default-options';
 
-class Smoothie {
-    constructor(opt = {}) {
+class Smoothie extends Component {
+    constructor(el = '.smoothie', opt = {}) {
+        super(el, opt);
+
         this.createBound();
-
-        this.options = opt;
-
-        this.prefix = prefix('transform');
         this.rAF = undefined;
         this.isRAFCanceled = false;
 
         const constructorName = this.constructor.name ? this.constructor.name : 'Smoothie';
         this.extends = constructorName !== 'Smoothie';
-        this.vars = Object.assign({}, defaults.vars, this.options.vars);
 
-        const hijackOptions = Object.assign({}, defaults.vs, this.options.vs);
-        this.hijack = new Hijack(hijackOptions);
+        this.current = 0;
+        this.target = 0;
+    }
 
-        const domOptions = {
-            listener: this.options.listener,
-            section: this.options.section
-        };
-
-        this.dom = Object.assign({}, domOptions, defaults.dom);
-        this.dom.scrollbar = {
-            state: {
-                clicked: false,
-                x: 0
-            },
-            el: create({
-                selector: 'div',
-                styles: `scrollbar-track scrollbar-${this.vars.direction} scrollbar-${constructorName.toLowerCase()}`
-            }),
-            drag: {
-                el: create({
-                    selector: 'div',
-                    styles: 'scrollbar'
-                }),
-                delta: 0,
-                height: 50
-            }
+    getInitialState() {
+        return {
+            height: window.innerHeight,
+            width: window.innerWidth,
+            currentItem: 0,
+            isAnimating: false
         };
     }
 
+    getDefaultOptions() {
+        return defaults;
+    }
+
     createBound() {
-        ['run', 'calc', 'resize', 'mouseUp', 'mouseDown', 'mouseMove', 'calcScroll', 'scrollTo']
+        ['run', 'calc', 'resize', 'scrollTo', 'mouseUp', 'mouseDown', 'mouseMove', 'calcScroll']
         .forEach((fn) => { this[fn] = this[fn].bind(this); });
     }
 
     init() {
+        super.init();
+
         this.addClasses();
 
-        console.log(ble);
-        this.scrollbar = new Scrollbar();
-        this.addScrollBar();
+        // events and resize
+
+        // starting hijacking
+        this.setRef('hijack', Hijack, this.options.vs);
 
 
-        this.addEvents();
+        // passing scrollbar track
+        this.$els.scrollbar = create({ selector: 'div', styles: `scrollbar-track scrollbar-${this.options.direction} scrollbar-${this.constructor.name.toLowerCase()}` });
+        this.setRef('scrollbar', Scrollbar, this.$els.scrollbar, this.options);
+
         this.resize();
+        this.addEvents();
     }
 
     addClasses() {
-        const direction = this.vars.direction === 'vertical' ? 'y' : 'x';
+        const direction = this.options.direction === 'vertical' ? 'y' : 'x';
 
-        classie.add(this.dom.listener, 'is-smoothed');
-        classie.add(this.dom.listener, `${direction}-scroll`);
+        classie.add(this.options.listener, 'is-smoothed');
+        classie.add(this.options.listener, `${direction}-scroll`);
     }
 
     calc(e) {
-        const delta = this.vars.direction === 'horizontal' ? e.deltaX : e.deltaY;
+        const delta = this.options.direction === 'horizontal' ? e.deltaX : e.deltaY;
 
-        this.vars.target += delta * -1;
+        this.target += delta * -1;
         this.clampTarget();
     }
 
     run() {
         if (this.isRAFCanceled) return;
 
-        this.vars.current += (this.vars.target - this.vars.current) * this.vars.ease;
-        this.vars.current < 0.1 && (this.vars.current = 0);
-        this.rAF = requestAnimationFrame(this.run);
-        
+        this.current += (this.target - this.current) * this.options.ease;
+        this.current < 0.1 && (this.current = 0);
+        this.rAF = window.requestAnimationFrame(this.run);
 
-        const position = this.vars.current.toFixed(2);
+        const position = this.current.toFixed(2);
+
         window.smoothieTop = position;
-        this.dom.section.style[this.prefix] = this.getTransform(-position);
-        this.updateScrollbar();
+
+        this.$el.style[this.options.prefix] = this.getTransform(-position);
+        this.$refs.scrollbar.update(this.current);
     }
 
     getTransform(value) {
-        return this.vars.direction === 'vertical' ? `translate3d(0, ${value}px, 0)` : `translate3d(${value}px,0,0)`;
+        return this.options.direction === 'vertical' ? `translate3d(0, ${value}px, 0)` : `translate3d(${value}px,0,0)`;
     }
 
     on(requestAnimationFrame = true) {
         if (this.isRAFCanceled) this.isRAFCanceled = false;
 
-        const node = this.dom.listener === document.body ? window : this.dom.listener;
-        this.hijack.on(this.calc);
+        const node = this.options.listener === document.body ? window : this.options.listener;
+        this.$refs.hijack.on(this.calc);
 
         if (requestAnimationFrame) this.requestAnimationFrame();
     }
 
     off(cancelAnimationFrame = true) {
-        const node = this.dom.listener === document.body ? window : this.dom.listener;
+        const node = this.options.listener === document.body ? window : this.options.listener;
 
         this.hijack.off(this.calc);
         if (cancelAnimationFrame) this.cancelAnimationFrame();
@@ -126,102 +118,84 @@ class Smoothie {
 
     addEvents() {
         this.on();
-        event.on(window, 'resize', this.resize);
+        window.addEventListener('resize', this.resize);
+
+        this.$refs.scrollbar.el.addEventListener('click', this.calcScroll);
+        this.$refs.scrollbar.el.addEventListener('mousedown', this.mouseDown);
+
+        document.addEventListener('mousemove', this.mouseMove);
+        document.addEventListener('mouseup', this.mouseUp);
     }
 
     removeEvents() {
         this.off();
-        event.off(window, 'resize', this.resize);
+        window.removeEventListener('resize', this.resize);
     }
 
-    addScrollBar() {
-        this.dom.listener.appendChild(this.dom.scrollbar.el);
-        this.dom.scrollbar.el.appendChild(this.dom.scrollbar.drag.el);
-
-        event.on(this.dom.scrollbar.el, 'click', this.calcScroll);
-        event.on(this.dom.scrollbar.el, 'mousedown', this.mouseDown);
-
-        event.on(document, 'mousemove', this.mouseMove);
-        event.on(document, 'mouseup', this.mouseUp);
+    scrollTo(offset) {
+        this.target = offset;
+        this.clampTarget();
     }
 
-    removeScrollBar() {
-        event.off(this.dom.scrollbar.el, 'click', this.calcScroll);
-        event.off(this.dom.scrollbar.el, 'mousedown', this.mouseDown);
+    resize() {
+        const prop = this.options.direction === 'vertical' ? 'height' : 'width';
 
-        event.off(document, 'mousemove', this.mouseMove);
-        event.off(document, 'mouseup', this.mouseUp);
+        this.setState('height', window.innerHeight);
+        this.setState('width', window.innerHeight);
 
-        this.dom.listener.removeChild(this.dom.scrollbar.el);
+        this.$refs.scrollbar.setState('height', window.innerHeight);
+        this.$refs.scrollbar.setState('width', window.innerHeight);
+
+        const bounding = this.$el.getBoundingClientRect();
+        const bounds = this.options.direction === 'vertical' ?
+            bounding.height - this.getState('height') :
+            bounding.right - this.getState('width');
+
+        this.setState('bounding', bounds);
+        this.$refs.scrollbar.setState('bounding', bounds);
+
+        this.clampTarget();
+
+        this.$refs.scrollbar.resize();
+    }
+
+    clampTarget() {
+        this.target = Math.round(Math.max(0, Math.min(this.target, this.getState('bounding'))));
     }
 
     mouseDown(e) {
         e.preventDefault();
 
-        if (e.which === 1) this.dom.scrollbar.state.clicked = true;
+        if (e.which === 1) this.setState('clicked', true);
     }
 
     mouseUp(e) {
-        this.dom.scrollbar.state.clicked = false;
-        classie.remove(this.dom.listener, 'is-dragging');
+        this.setState('clicked', false);
+        classie.remove(this.options.listener, 'is-dragging');
     }
 
     mouseMove(e) {
-        this.dom.scrollbar.state.clicked && this.calcScroll(e);
+        if (this.getState('clicked')) this.calcScroll(e);
     }
 
     calcScroll(e) {
-        const client = this.vars.direction === 'vertical' ? e.clientY : e.clientX;
-        const bounds = this.vars.direction === 'vertical' ? this.vars.height : this.vars.width;
-        const delta = client * (this.vars.bounding / bounds);
+        const client = this.options.direction === 'vertical' ? e.clientY : e.clientX;
+        const bounds = this.options.direction === 'vertical' ? this.getState('height') : this.getState('width');
+        const delta = client * (this.getState('bounding') / bounds);
 
-        classie.add(this.dom.listener, 'is-dragging');
+        classie.add(this.options.listener, 'is-dragging');
 
-        this.vars.target = delta;
+        this.target = delta;
         this.clampTarget();
-        this.dom.scrollbar && (this.dom.scrollbar.drag.delta = this.vars.target);
-    }
-
-    scrollTo(offset) {
-        this.vars.target = offset;
-        this.clampTarget();
-    }
-
-    resize() {
-        const prop = this.vars.direction === 'vertical' ? 'height' : 'width';
-
-        this.vars.height = window.innerHeight;
-        this.vars.width = window.innerWidth;
-
-        const bounding = this.dom.section.getBoundingClientRect();
-        this.vars.bounding = this.vars.direction === 'vertical' ?
-            bounding.height - this.vars.height :
-            bounding.right - this.vars.width;
-
-        this.dom.scrollbar.drag.height = this.vars.height * (this.vars.height / (this.vars.bounding + this.vars.height));
-        this.dom.scrollbar.drag.el.style[prop] = `${this.dom.scrollbar.drag.height}px`;
-        this.clampTarget();
-    }
-
-    clampTarget() {
-        this.vars.target = Math.round(Math.max(0, Math.min(this.vars.target, this.vars.bounding)));
-    }
-
-    updateScrollbar() {
-        const size = this.dom.scrollbar.drag.height;
-        const bounds = this.vars.direction === 'vertical' ? this.vars.height : this.vars.width;
-        const value = (Math.abs(this.vars.current) / (this.vars.bounding / (bounds - size))) + (size / 0.5) - size;
-        const clamp = Math.max(0, Math.min(value - size, value + size));
-
-        this.dom.scrollbar.drag.el.style[this.prefix] = this.getTransform(clamp.toFixed(2));
+        this.$refs.scrollbar.setState('delta', this.target);
     }
 
     destroy() {
-        classie.remove(this.dom.listener, 'is-smoothed');
+        classie.remove(this.options.listener, 'is-smoothed');
         this.removeScrollBar();
 
-        this.vars.direction === 'vertical' ? classie.remove(this.dom.listener, 'y-scroll') : classie.remove(this.dom.listener, 'x-scroll');
-        this.vars.current = 0;
+        this.options.direction === 'vertical' ? classie.remove(this.options.listener, 'y-scroll') : classie.remove(this.options.listener, 'x-scroll');
+        this.current = 0;
         this.hijack && (this.hijack.destroy(), this.hijack = null);
 
         this.removeEvents();

@@ -1,14 +1,16 @@
+import prefix from 'prefix';
+
 const defaults = {
-    vars: {
-        direction: 'vertical',
-        ease: 0.075,
-        current: 0,
-        target: 0,
-        height: window.innerHeight,
-        width: window.innerWidth,
-        bounding: 0,
-        timer: null,
-        ticking: false
+    direction: 'vertical',
+    ease: 0.075,
+    bounding: 0,
+    timer: null,
+    ticking: false,
+    prefix: prefix('transform'),
+    listener: document.body,
+
+    scrollbar: {
+        dragHeight: 50,
     },
 
     vs: {
@@ -18,11 +20,6 @@ const defaults = {
         firefoxMultiplier: 30,
         preventTouch: true,
     },
-
-    dom: {
-        listener: document.body,
-        section: document.querySelector('.smoothie'),
-    }
 };
 
 export default defaults;

@@ -1,8 +1,8 @@
 const Smoothie = window.smoothie;
 
 class Custom extends Smoothie {
-    constructor(opt = {}) {
-        super(opt);
+    constructor(el, opt = {}) {
+        super(el, opt);
     }
 
     run() {
@@ -13,10 +13,10 @@ class Custom extends Smoothie {
     }
 
     resize() {
-        this.vars.bounding = this.dom.section.getBoundingClientRect().height - this.vars.height;
+        this.options.bounding = this.$el.getBoundingClientRect().height - this.height;
         super.resize();
     }
 }
 
-const smoothie = new Custom({});
+const smoothie = new Custom('.smoothie', {});
 smoothie.init();
