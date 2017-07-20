@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/sndrgb/smoothie">
-    <img height="257" width="114" src="https://raw.githubusercontent.com/sndrgb/smoothie/master/smoothie.svg">
+    <img height="257" width="114" src="https://raw.githubusercontent.com/sndrgb/smoothie/master/smoothie.png">
   </a>
   <p align="center">Smooth fake scrollbar for your `awesome` projects</p>
 </p>
