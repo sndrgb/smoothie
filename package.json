@@ -1,5 +1,5 @@
 {
-  "name": "smoothie",
+  "name": "smoothie-scroll",
   "version": "0.0.1",
   "description": "Fake scroll with a smooth engine",
   "main": "lib/smoothie.js",
