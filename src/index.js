@@ -55,6 +55,7 @@ class Smoothie extends Component {
         this.setRef('scrollbar', Scrollbar, this.$els.scrollbar, this.options);
 
         this.resize();
+        this.update = this.resize;
         this.addEvents();
     }
 
