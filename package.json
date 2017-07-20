@@ -1,8 +1,8 @@
 {
   "name": "smoothie",
   "version": "0.0.1",
-  "description": "Smooth fake scroll using CSS transform",
-  "main": "src/index.js",
+  "description": "Fake scroll with a smooth engine",
+  "main": "lib/smoothie.js",
   "scripts": {
     "dev": "cross-env BABEL_ENV=cjs webpack-dev-server --hot --config ./webpack.config.js --inline",
     "build": "cross-env NODE_ENV=development webpack --config webpack.config.js",
