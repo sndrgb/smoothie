@@ -18,13 +18,27 @@ class Custom extends Smoothie {
     }
 }
 
-const smoothie = new Custom('.smoothie', {});
+const smoothie = new Custom('.smoothie', {
+    listener: document.querySelector('.smoothie-container')
+});
 smoothie.init();
 
-smoothie.update();
+const nested = new Smoothie('.nested', {
+    listener: document.querySelector('.nested-container')
+});
+nested.init();
+nested.off();
 
-smoothie.off();
+let toggle = true;
+const button = document.querySelector('#switch');
+button.addEventListener('click', () => {
+    toggle = !toggle;
 
-setTimeout(() => {
-    smoothie.on();
-}, 5000);
+    if (!toggle) {
+        smoothie.off();
+        nested.on();
+    } else {
+        smoothie.on();
+        nested.off();
+    }
+});

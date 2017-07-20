@@ -54,7 +54,7 @@ class Hijack {
         evt.x += evt.deltaX;
         evt.y += evt.deltaY;
 
-        this.emitter.emit('blabla');
+        console.log(eventId);
 
         this.emitter.emit(eventId, {
             x: evt.x,
@@ -66,6 +66,7 @@ class Hijack {
     }
 
     onWheel(e) {
+        console.log(e.target);
         const options = this.options;
         if (this.lethargy && this.lethargy.check(e) === false) return;
         const evt = this.event;
@@ -87,6 +88,7 @@ class Hijack {
     }
 
     onMouseWheel(e) {
+        console.log(e.target);
         if (this.options.limitInertia && this.lethargy.check(e) === false) return;
 
         const evt = this.event;

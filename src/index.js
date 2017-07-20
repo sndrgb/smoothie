@@ -44,8 +44,6 @@ class Smoothie extends Component {
 
         this.addClasses();
 
-        // events and resize
-
         // starting hijacking
         this.setRef('hijack', Hijack, this.options.vs);
 
@@ -141,11 +139,15 @@ class Smoothie extends Component {
     resize() {
         const prop = this.options.direction === 'vertical' ? 'height' : 'width';
 
-        this.setState('height', window.innerHeight);
-        this.setState('width', window.innerHeight);
+        const h = this.options.listener === document.body ?
+            window.innerHeight : this.options.listener.clientHeight;
+        const w = this.options.listener === document.body ?
+            window.innerWidth : this.options.listener.clientWidth;
 
-        this.$refs.scrollbar.setState('height', window.innerHeight);
-        this.$refs.scrollbar.setState('width', window.innerHeight);
+        this.setState('height', h);
+        this.setState('width', w);
+        this.$refs.scrollbar.setState('height', h);
+        this.$refs.scrollbar.setState('width', w);
 
         const bounding = this.$el.getBoundingClientRect();
         const bounds = this.options.direction === 'vertical' ?

@@ -3,25 +3,27 @@ body {
     padding: 0;
 }
 
-.container {
+.smoothie-container {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
+    width: 100%;
     overflow: hidden;
 }
 
+.nested,
 .smoothie {
-    min-height: 4000px;
+    min-height: 3000px;
     will-change: transform;
 }
 
 .scrollbar-track {
-    position: fixed;
+    position: absolute;
     top: 0%;
     right: 0;
-    width: 100px;
+    width: 20px;
     height: 100%;
     background: lightgray;
 }
@@ -40,7 +42,35 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    margin: 20px;
+    margin: 0.1em;
     background: yellow;
     z-index: 1;
+}
+
+.nested-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 50%;
+    width: 50%;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.nested-container .scrollbar-track {
+    background: blue;
+    z-index: 2;
+}
+
+.nested-container .scrollbar::after {
+    background: firebrick;
+}
+
+#switch {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 3;
 }
