@@ -20,3 +20,11 @@ class Custom extends Smoothie {
 
 const smoothie = new Custom('.smoothie', {});
 smoothie.init();
+
+smoothie.update();
+
+smoothie.off();
+
+setTimeout(() => {
+    smoothie.on();
+}, 5000);

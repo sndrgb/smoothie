@@ -12,10 +12,16 @@ Inspired and written on top of smooth-scrolling by Baptiste Briel and VirtualScr
 - `new Smoothie(options)`
 Return a new instance of Smoothie. See the options below.
 
-- `instance.on(fn, context)`
-Listen to the scroll event using the specified function (fn) and optional context.
+- `instance.init()`
+Life comes here!
 
-- `instance.off(fn, context)`
+- `instance.update()`
+Update the instance with new bounds.
+
+- `instance.on()`
+Listen to the scroll.
+
+- `instance.off()`
 Remove the listener.
 
 - `instance.destroy()`

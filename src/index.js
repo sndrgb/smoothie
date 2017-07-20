@@ -104,7 +104,7 @@ class Smoothie extends Component {
     off(cancelAnimationFrame = true) {
         const node = this.options.listener === document.body ? window : this.options.listener;
 
-        this.hijack.off(this.calc);
+        this.$refs.hijack.off(this.calc);
         if (cancelAnimationFrame) this.cancelAnimationFrame();
     }
 
