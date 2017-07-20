@@ -1,11 +1,10 @@
 <p align="center">
   <a href="https://github.com/sndrgb/smoothie">
-    <img height="257" width="114" src="https://raw.githubusercontent.com/sndrgb/smoothie/master/smoothie.png">
+    <img width="200" src="https://raw.githubusercontent.com/sndrgb/smoothie/master/smoothie.png">
   </a>
   <p align="center">Smooth fake scrollbar for your `awesome` projects</p>
 </p>
 
-=====
 Inspired and written on top of smooth-scrolling by Baptiste Briel and VirtualScroll by Florian Morel
 
 ### API
