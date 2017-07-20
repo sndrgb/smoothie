@@ -192,12 +192,11 @@ class Smoothie extends Component {
     }
 
     destroy() {
+        super.destroy();
         classie.remove(this.options.listener, 'is-smoothed');
-        this.removeScrollBar();
 
         this.options.direction === 'vertical' ? classie.remove(this.options.listener, 'y-scroll') : classie.remove(this.options.listener, 'x-scroll');
         this.current = 0;
-        this.hijack && (this.hijack.destroy(), this.hijack = null);
 
         this.removeEvents();
     }
