@@ -16,7 +16,7 @@ class Scrollbar extends Component {
         this.addScrollBar();
     }
 
-    getInitialState() {
+    get getInitialState() {
         return {
             height: 0,
             width: 0,

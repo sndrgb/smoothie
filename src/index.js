@@ -1,10 +1,10 @@
 import classie from 'classie';
 import create from 'dom-create-element';
+import prefix from 'prefix';
 
 import Hijack from './hijack';
 import Scrollbar from './scrollbar';
 import Component from './utils/component';
-import defaults from './default-options';
 
 class Smoothie extends Component {
     constructor(el = '.smoothie', opt = {}) {
@@ -21,7 +21,7 @@ class Smoothie extends Component {
         this.target = 0;
     }
 
-    getInitialState() {
+    get getInitialState() {
         return {
             height: window.innerHeight,
             width: window.innerWidth,
@@ -30,8 +30,28 @@ class Smoothie extends Component {
         };
     }
 
-    getDefaultOptions() {
-        return defaults;
+    get getDefaultOptions() {
+        return {
+            direction: 'vertical',
+            ease: 0.075,
+            bounding: 0,
+            timer: null,
+            ticking: false,
+            prefix: prefix('transform'),
+            listener: document.body,
+
+            scrollbar: {
+                dragHeight: 50,
+            },
+
+            vs: {
+                limitInertia: false,
+                mouseMultiplier: 1,
+                touchMultiplier: 1.5,
+                firefoxMultiplier: 30,
+                preventTouch: true,
+            },
+        };
     }
 
     createBound() {

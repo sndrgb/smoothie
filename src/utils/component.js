@@ -24,7 +24,7 @@ class Component extends EventEmitter {
         // sub components references
         this.$refs = {};
 
-        this.options = merge(this.getDefaultOptions(), options);
+        this.options = merge(this.getDefaultOptions, options);
 
         const domEvents = new DOMEvents(this.$el, this);
         this.delegate = (event, selector, fn) => domEvents.bind(event + (selector ? ' ' + selector : ''), fn);
@@ -73,7 +73,7 @@ class Component extends EventEmitter {
             this.on('change:' + key, stateEventsMap[key].bind(this));
         });
 
-        const initialState = Object.assign({}, this.getInitialState(), state);
+        const initialState = Object.assign({}, this.getInitialState, state);
         Object.keys(initialState).forEach((key) => {
             this.setState(key, initialState[key]);
         });
@@ -115,11 +115,11 @@ class Component extends EventEmitter {
         console.log('💣  aaaaaaaaaa!');
     }
 
-    getInitialState() {
+    get getInitialState() {
         return {};
     }
 
-    getDefaultOptions() {
+    get getDefaultOptions() {
         return {};
     }
 
