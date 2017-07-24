@@ -26,6 +26,23 @@ body {
     width: 20px;
     height: 100%;
     background: lightgray;
+    animation: scrollbar 0.5s;
+}
+
+.scrollbar-track.is-leaving {
+    transition: all 0.5s ease-out;
+    opacity: 0;
+    transform: translate3d(100%, 0, 0);
+}
+
+@keyframes scrollbar {
+    0% {
+        transform: translate3d(100%, 0, 0);
+    }
+
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
 }
 
 .scrollbar {
@@ -33,6 +50,7 @@ body {
     top: 0;
     left: 0;
     width: 100%;
+    will-change: transform;
 }
 
 .scrollbar::after {
@@ -72,5 +90,12 @@ body {
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 3;
+}
+
+#enable {
+    position: fixed;
+    top: 0;
+    right: 0;
     z-index: 3;
 }

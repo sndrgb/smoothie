@@ -1,6 +1,8 @@
 import classie from 'classie';
 import create from 'dom-create-element';
+
 import Component from './utils/component';
+import transitionEnd from './utils/after-transition';
 
 class Scrollbar extends Component {
     constructor(el, opts = {}) {
@@ -33,18 +35,16 @@ class Scrollbar extends Component {
     }
 
     addScrollBar() {
-        this.options.listener.appendChild(this.$el);
         this.$el.appendChild(this.$els.drag);
+        this.options.listener.appendChild(this.$el);
     }
 
     removeScrollBar() {
-        event.off(this.dom.scrollbar.el, 'click', this.calcScroll);
-        event.off(this.dom.scrollbar.el, 'mousedown', this.mouseDown);
+        classie.add(this.$el, 'is-leaving');
 
-        document.removeEventListener('mousemove', this.mouseMove);
-        document.removeEventListener('mouseup', this.mouseUp);
-
-        this.dom.listener.removeChild(this.dom.scrollbar.el);
+        transitionEnd(this.$el, () => {
+            this.options.listener.removeChild(this.$el);
+        })
     }
 
     getTransform(value) {
@@ -58,6 +58,12 @@ class Scrollbar extends Component {
         const clamp = Math.max(0, Math.min(value - size, value + size));
 
         this.$els.drag.style[this.options.prefix] = this.getTransform(clamp.toFixed(2));
+    }
+
+
+    destroy() {
+        super.destroy();
+        this.removeScrollBar();
     }
 }
 
