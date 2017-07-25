@@ -35,8 +35,15 @@ class Scrollbar extends Component {
     }
 
     addScrollBar() {
-        this.$el.appendChild(this.$els.drag);
-        this.options.listener.appendChild(this.$el);
+        const p1 = new Promise((resolve) => {
+            this.$el.appendChild(this.$els.drag);
+            this.options.listener.appendChild(this.$el);
+            resolve();
+        });
+
+        p1.then(() => {
+            classie.remove(this.$el, 'is-entering');
+        })
     }
 
     removeScrollBar() {

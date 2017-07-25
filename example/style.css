@@ -23,26 +23,17 @@ body {
     position: absolute;
     top: 0%;
     right: 0;
-    width: 20px;
+    width: 10px;
     height: 100%;
     background: lightgray;
-    animation: scrollbar 0.5s;
+    opacity: 1;
+    visibility: visible;
+    transition: all 1.5s;
 }
 
+.scrollbar-track.is-entering,
 .scrollbar-track.is-leaving {
-    transition: all 0.5s ease-out;
-    opacity: 0;
     transform: translate3d(100%, 0, 0);
-}
-
-@keyframes scrollbar {
-    0% {
-        transform: translate3d(100%, 0, 0);
-    }
-
-    100% {
-        transform: translate3d(0, 0, 0);
-    }
 }
 
 .scrollbar {
@@ -60,7 +51,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    margin: 0.1em;
+    margin: 2px;
     background: yellow;
     z-index: 1;
 }
@@ -75,6 +66,7 @@ body {
     width: 50%;
     overflow: hidden;
     z-index: 0;
+    margin: auto;
 }
 
 .nested-container .scrollbar-track {

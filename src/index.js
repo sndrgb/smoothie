@@ -34,15 +34,8 @@ class Smoothie extends Component {
         return {
             direction: 'vertical',
             ease: 0.075,
-            bounding: 0,
-            timer: null,
-            ticking: false,
             prefix: prefix('transform'),
             listener: document.body,
-
-            scrollbar: {
-                dragHeight: 50,
-            },
 
             vs: {
                 limitInertia: false,
@@ -69,7 +62,10 @@ class Smoothie extends Component {
 
 
         // passing scrollbar track
-        this.$els.scrollbar = create({ selector: 'div', styles: `scrollbar-track scrollbar-${this.options.direction} scrollbar-${this.constructor.name.toLowerCase()}` });
+        this.$els.scrollbar = create({
+            selector: 'div',
+            styles: `scrollbar-track scrollbar-${this.options.direction} is-entering`
+        });
         this.setRef('scrollbar', Scrollbar, this.$els.scrollbar, this.options);
 
         this.resize();
