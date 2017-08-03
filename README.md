@@ -7,6 +7,11 @@
 
 Inspired and written on top of smooth-scrolling by Baptiste Briel and VirtualScroll by Florian Morel
 
+### Install
+```
+npm i smoothie-scroll --s
+```
+
 ### Usage
 
 Init your Smoothie with `new Smoothie(options)` with the following options (if you want):
