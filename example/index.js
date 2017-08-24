@@ -1,27 +1,9 @@
 const Smoothie = window.smoothie;
 
-class Custom extends Smoothie {
-    constructor(el, opt = {}) {
-        super(el, opt);
-    }
-
-    run() {
-        super.run();
-
-        const second = document.querySelector('#second');
-        const bounding = second.getBoundingClientRect();
-    }
-
-    resize() {
-        this.options.bounding = this.$el.getBoundingClientRect().height - this.height;
-        super.resize();
-    }
-}
-
 let smoothie;
 let nested;
 function init() {
-    smoothie = new Custom('.smoothie', {
+    smoothie = new Smoothie('.smoothie', {
         listener: document.querySelector('.smoothie-container')
     });
     smoothie.init();
@@ -30,10 +12,25 @@ function init() {
         listener: document.querySelector('.nested-container')
     });
     nested.init();
-    nested.off();
+    nested.stop();
 }
 
 init();
+
+setTimeout(() => {
+    const els = document.querySelectorAll('.el');
+
+    smoothie.addListener((status) => {
+        els.forEach((el) => {
+            if (smoothie.inViewport(el)) {
+                el.setAttribute('data-animated', '');
+            } else {
+                el.removeAttribute('data-animated');
+            }
+        });
+    });
+}, 3000);
+
 
 let toggle = true;
 const $switch = document.querySelector('#switch');
@@ -41,11 +38,11 @@ $switch.addEventListener('click', () => {
     toggle = !toggle;
 
     if (!toggle) {
-        smoothie.off();
-        nested.on();
+        smoothie.stop();
+        nested.start();
     } else {
-        smoothie.on();
-        nested.off();
+        smoothie.start();
+        nested.stop();
     }
 });
 

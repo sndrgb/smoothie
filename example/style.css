@@ -17,6 +17,13 @@ body {
 .smoothie {
     min-height: 3000px;
     will-change: transform;
+    background: #141414;
+    position: relative;
+}
+
+img {
+    display: block;
+    width: 100%;
 }
 
 .scrollbar-track {
@@ -52,7 +59,7 @@ body {
     right: 0;
     bottom: 0;
     margin: 2px;
-    background: yellow;
+    background: black;
     z-index: 1;
 }
 
@@ -68,9 +75,14 @@ body {
     z-index: 0;
     margin: auto;
 }
+.nested-container img {
+    display: block;
+    width: auto;
+    height: 100%;
+}
 
 .nested-container .scrollbar-track {
-    background: blue;
+    background: white;
     z-index: 2;
 }
 
@@ -90,4 +102,26 @@ body {
     top: 0;
     right: 0;
     z-index: 3;
+}
+
+.elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: 80vh;
+    z-index: 20;
+}
+
+.elements > div {
+    background: black;
+    width: 40px;
+    height: 300px;
+    margin: 200px 20px;
+    transition: all 1s ease-out;
+    background: firebrick;
+}
+
+.elements > [data-animated] {
+    background: green;
+    transform: translate3d(100px, 0, 0);
 }
