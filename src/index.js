@@ -174,7 +174,7 @@ class Smoothie extends Component {
     }
 
     removeEvents() {
-        this.off();
+        this.stop();
         window.removeEventListener('resize', this.resize);
     }
 
