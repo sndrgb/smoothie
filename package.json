@@ -1,6 +1,6 @@
 {
   "name": "smoothie-scroll",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Fake scroll with a smooth engine",
   "main": "lib/smoothie.js",
   "scripts": {

@@ -33,7 +33,7 @@ class Smoothie extends Component {
 
     get getDefaultOptions() {
         return {
-            direction: 'vertical',
+            orientation: 'vertical',
             ease: 0.075,
             prefix: prefix('transform'),
             listener: document.body,
@@ -86,11 +86,10 @@ class Smoothie extends Component {
         // starting hijacking
         this.setRef('hijack', Hijack, this.options.vs);
 
-
         // passing scrollbar track
         this.$els.scrollbar = create({
             selector: 'div',
-            styles: `scrollbar-track scrollbar-${this.options.direction} is-entering`
+            styles: `scrollbar-track scrollbar-${this.options.orientation} is-entering`
         });
         this.setRef('scrollbar', Scrollbar, this.$els.scrollbar, this.options);
 
@@ -100,16 +99,20 @@ class Smoothie extends Component {
     }
 
     addClasses() {
-        const direction = this.options.direction === 'vertical' ? 'y' : 'x';
+        const orientation = this.options.orientation === 'vertical' ? 'y' : 'x';
 
         classie.add(this.options.listener, 'is-smoothed');
-        classie.add(this.options.listener, `${direction}-scroll`);
+        classie.add(this.options.listener, `${orientation}-scroll`);
     }
 
     calc(e) {
-        const delta = this.options.direction === 'horizontal' ? e.deltaX : e.deltaY;
+        const delta = this.options.orientation === 'horizontal' ? e.deltaX : e.deltaY;
 
         this.target += delta * -1;
+
+        // set direction to up or down
+        this.setState('direction', (this.target > this.current) ? 'down' : 'up');
+
         this.clampTarget();
     }
 
@@ -127,14 +130,16 @@ class Smoothie extends Component {
         this.$refs.scrollbar.update(this.current);
 
         if (this.getState('emitEventOnScrolling')) {
+            console.log(this.getState('direction'))
             this.emit('scrolling', {
-                current: this.current
+                current: this.current,
+                direction: this.getState('direction')
             });
         }
     }
 
     getTransform(value) {
-        return this.options.direction === 'vertical' ? `translate3d(0, ${value}px, 0)` : `translate3d(${value}px,0,0)`;
+        return this.options.orientation === 'vertical' ? `translate3d(0, ${value}px, 0)` : `translate3d(${value}px,0,0)`;
     }
 
     start(requestAnimationFrame = true) {
@@ -184,7 +189,7 @@ class Smoothie extends Component {
     }
 
     resize() {
-        const prop = this.options.direction === 'vertical' ? 'height' : 'width';
+        const prop = this.options.orientation === 'vertical' ? 'height' : 'width';
 
         const h = this.options.listener === document.body ?
             window.innerHeight : this.options.listener.clientHeight;
@@ -197,7 +202,7 @@ class Smoothie extends Component {
         this.$refs.scrollbar.setState('width', w);
 
         const bounding = this.$el.getBoundingClientRect();
-        const bounds = this.options.direction === 'vertical' ?
+        const bounds = this.options.orientation === 'vertical' ?
             bounding.height - this.getState('height') :
             bounding.right - this.getState('width');
 
@@ -229,8 +234,8 @@ class Smoothie extends Component {
     }
 
     calcScroll(e) {
-        const client = this.options.direction === 'vertical' ? e.clientY : e.clientX;
-        const bounds = this.options.direction === 'vertical' ? this.getState('height') : this.getState('width');
+        const client = this.options.orientation === 'vertical' ? e.clientY : e.clientX;
+        const bounds = this.options.orientation === 'vertical' ? this.getState('height') : this.getState('width');
         const delta = client * (this.getState('bounding') / bounds);
 
         classie.add(this.options.listener, 'is-dragging');
@@ -244,7 +249,7 @@ class Smoothie extends Component {
         super.destroy();
         classie.remove(this.options.listener, 'is-smoothed');
 
-        this.options.direction === 'vertical' ? classie.remove(this.options.listener, 'y-scroll') : classie.remove(this.options.listener, 'x-scroll');
+        this.options.orientation === 'vertical' ? classie.remove(this.options.listener, 'y-scroll') : classie.remove(this.options.listener, 'x-scroll');
         this.current = 0;
 
         this.removeEvents();
