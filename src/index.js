@@ -62,6 +62,10 @@ class Smoothie extends Component {
         });
     }
 
+    removeListener(callback) {
+        this.setState('emitEventOnScrolling', false);
+    }
+
     inViewport(el, index) {
         // if (!this.cache || this.resizing) return false;
         const bounding = el.getBoundingClientRect();
@@ -130,7 +134,6 @@ class Smoothie extends Component {
         this.$refs.scrollbar.update(this.current);
 
         if (this.getState('emitEventOnScrolling')) {
-            console.log(this.getState('direction'))
             this.emit('scrolling', {
                 current: this.current,
                 direction: this.getState('direction')
