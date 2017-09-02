@@ -37,6 +37,7 @@ class Smoothie extends Component {
             ease: 0.075,
             prefix: prefix('transform'),
             listener: document.body,
+            renderByPixels: true,
 
             vs: {
                 limitInertia: false,
@@ -127,8 +128,11 @@ class Smoothie extends Component {
         this.current < 0.1 && (this.current = 0);
         this.rAF = window.requestAnimationFrame(this.run);
 
-        const position = this.current.toFixed(2);
+        let position = this.current.toFixed(2);
 
+        if (this.options.renderByPixels) {
+            position = Math.round(this.current);
+        }
 
         this.$el.style[this.options.prefix] = this.getTransform(-position);
         this.$refs.scrollbar.update(this.current);
