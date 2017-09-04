@@ -30,7 +30,7 @@ class Scrollbar extends Component {
 
     resize() {
         const prop = this.options.orientation === 'vertical' ? 'height' : 'width';
-        this.dragHeight = this.getState('height') * (this.getState('height') / (this.getState('bounding') + this.getState('height')));
+        this.dragHeight = Math.round(this.getState('height') * (this.getState('height') / (this.getState('bounding') + this.getState('height'))));
         this.$els.drag.style[prop] = `${this.dragHeight}px`;
     }
 
@@ -43,7 +43,7 @@ class Scrollbar extends Component {
 
         p1.then(() => {
             classie.remove(this.$el, 'is-entering');
-        })
+        });
     }
 
     removeScrollBar() {
@@ -51,7 +51,7 @@ class Scrollbar extends Component {
 
         transitionEnd(this.$el, () => {
             this.options.listener.removeChild(this.$el);
-        })
+        });
     }
 
     getTransform(value) {
@@ -62,9 +62,9 @@ class Scrollbar extends Component {
         const size = this.dragHeight;
         const bounds = this.options.orientation === 'vertical' ? this.getState('height') : this.options.width;
         const value = (Math.abs(current) / (this.getState('bounding') / (bounds - size))) + (size / 0.5) - size;
-        const clamp = Math.max(0, Math.min(value - size, value + size));
+        const clamp = Math.round(Math.max(0, Math.min(value - size, value + size)));
 
-        this.$els.drag.style[this.options.prefix] = this.getTransform(clamp.toFixed(2));
+        this.$els.drag.style[this.options.prefix] = this.getTransform(clamp);
     }
 
 
