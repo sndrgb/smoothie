@@ -256,6 +256,7 @@ class Smoothie extends Component {
         super.destroy();
         classie.remove(this.options.listener, 'is-smoothed');
 
+        this.$el.style[this.options.prefix] = '';
         this.options.orientation === 'vertical' ? classie.remove(this.options.listener, 'y-scroll') : classie.remove(this.options.listener, 'x-scroll');
         this.current = 0;
 
