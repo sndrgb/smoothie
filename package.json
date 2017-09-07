@@ -31,7 +31,8 @@
     "lodash.iselement": "^4.1.1",
     "lodash.merge": "^4.6.0",
     "prefix": "^1.0.0",
-    "tiny-emitter": "^2.0.1"
+    "tiny-emitter": "^2.0.1",
+    "yuzu": "^0.1.0"
   },
   "devDependencies": {
     "babel-core": "^6.25.0",

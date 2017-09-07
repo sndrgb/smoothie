@@ -59,7 +59,10 @@ module.exports = {
             include: [
                 path.join(process.cwd(), 'src')
             ],
-            loader: 'babel-loader'
+            loader: 'babel-loader',
+            query: {
+                presets: ['es2015'],
+            }
         }]
     }
 };
