@@ -1,6 +1,6 @@
 {
   "name": "smoothie-scroll",
-  "version": "0.2.9",
+  "version": "0.3.0",
   "description": "Fake scroll with a smooth engine",
   "main": "lib/smoothie.js",
   "scripts": {
@@ -39,6 +39,7 @@
     "babel-eslint": "^7.2.3",
     "babel-loader": "^7.1.1",
     "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-transform-object-assign": "^6.22.0",
     "babel-preset-env": "^1.6.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
