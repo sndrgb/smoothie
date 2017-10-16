@@ -195,6 +195,27 @@ class Smoothie extends Component {
         this.clampTarget();
     }
 
+    setTo(offset) {
+        let target = offset;
+        
+        if (typeof (target) === 'string') {
+            switch (target) {
+            case 'bottom':
+                target = this.getState('bounding');
+                break;
+            default:
+                target = 0;
+
+            }
+        }
+
+        this.target = target;
+        this.current = target;
+        this.$el.style[this.options.prefix] = this.getTransform(-target);
+        this.$refs.scrollbar.update(this.current);
+        this.clampTarget();
+    }
+
     resize() {
         const prop = this.options.orientation === 'vertical' ? 'height' : 'width';
 

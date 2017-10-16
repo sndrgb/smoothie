@@ -1,6 +1,6 @@
 {
     "env": {
-        "es": {
+        "production": {
             "presets": [
                 [
                     "es2015",

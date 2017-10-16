@@ -32,6 +32,12 @@ setTimeout(() => {
 }, 3000);
 
 
+setTimeout(() => {
+    console.log('start from bottom!');
+    smoothie.setTo('bottom');
+}, 4000);
+
+
 let toggle = true;
 const $switch = document.querySelector('#switch');
 $switch.addEventListener('click', () => {

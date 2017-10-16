@@ -12,6 +12,8 @@ const banner =
 " */\n";
 /*eslint-enable */
 
+console.log(process.env.NODE_ENV);
+
 const plugins = [
     new webpack.BannerPlugin({ raw: true, banner }),
     new webpack.NoEmitOnErrorsPlugin(),
@@ -60,10 +62,6 @@ module.exports = {
                 path.join(process.cwd(), 'src')
             ],
             loader: 'babel-loader',
-            query: {
-                presets: ['es2015'],
-                plugins: ['transform-object-assign']
-            }
         }]
     }
 };

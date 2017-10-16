@@ -21,6 +21,14 @@ body {
     position: relative;
 }
 
+.smoothie {
+    background: url('https://source.unsplash.com/1200x1200');
+    background-size: contain;
+    background-repeat: repeat;
+    min-height: 10000px;
+}
+
+
 img {
     display: block;
     width: 100%;
@@ -113,7 +121,6 @@ img {
 }
 
 .elements > div {
-    background: black;
     width: 40px;
     height: 300px;
     margin: 200px 20px;
