@@ -83,8 +83,13 @@ class Smoothie extends Component {
             || (bounds.top <= viewport.bottom && bounds.top >= viewport.top);
     }
 
-    init() {
+    init(initialPosition) {
         super.init();
+
+        if (initialPosition && initialPosition !== undefined && initialPosition !== null) {
+            this.current = initialPosition;
+            this.target = initialPosition;
+        }
 
         this.addClasses();
 

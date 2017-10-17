@@ -40,8 +40,9 @@ You can tween enter and exit of scrollbar using css classes:
 - `new Smoothie(options)`
 Return a new instance of Smoothie. See the options below.
 
-- `instance.init()`
-Life comes here!
+- `instance.init(: initial position :)`
+Life comes here! 
+Optional you can set initial position
 
 - `instance.update()`
 Update the instance with new bounds.
@@ -54,6 +55,9 @@ Remove the listener.
 
 - `instance.destroy()`
 Will remove all events and unbind the DOM listeners.
+
+- `instance.setTo()`
+Immediatly set position of your scrollbar.
 
 Events note:
 Each instance will listen only once to any DOM listener. These listener are enabled/disabled automatically. However, it's a good practice to always call `destroy()` on your Smoothie instance, especially if you are working with a SPA.

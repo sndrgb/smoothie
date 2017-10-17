@@ -6,7 +6,7 @@ function init() {
     smoothie = new Smoothie('.smoothie', {
         listener: document.querySelector('.smoothie-container')
     });
-    smoothie.init();
+    smoothie.init(1000);
 
     nested = new Smoothie('.nested', {
         listener: document.querySelector('.nested-container')
@@ -32,10 +32,8 @@ setTimeout(() => {
 }, 3000);
 
 
-setTimeout(() => {
-    console.log('start from bottom!');
-    smoothie.setTo('bottom');
-}, 4000);
+// console.log('start from bottom!');
+// smoothie.setTo('bottom');
 
 
 let toggle = true;
