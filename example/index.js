@@ -9,6 +9,8 @@ function init() {
     smoothie.init(1000);
 
     nested = new Smoothie('.nested', {
+        orientation: 'horizontal',
+        deltaY: 'true',
         listener: document.querySelector('.nested-container')
     });
     nested.init();

@@ -13,7 +13,6 @@ body {
     overflow: hidden;
 }
 
-.nested,
 .smoothie {
     min-height: 3000px;
     will-change: transform;
@@ -69,6 +68,13 @@ img {
     margin: 2px;
     background: black;
     z-index: 1;
+}
+
+.nested {
+    min-width: 3000px;
+    will-change: transform;
+    background: #141414;
+    position: relative;
 }
 
 .nested-container {

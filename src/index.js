@@ -38,6 +38,7 @@ class Smoothie extends Component {
             prefix: prefix('transform'),
             listener: document.body,
             renderByPixels: true,
+            deltaY: false,
 
             vs: {
                 limitInertia: false,
@@ -110,13 +111,14 @@ class Smoothie extends Component {
 
     addClasses() {
         const orientation = this.options.orientation === 'vertical' ? 'y' : 'x';
+        console.log('this.options.orientation: ', this.options.orientation);
 
         classie.add(this.options.listener, 'is-smoothed');
         classie.add(this.options.listener, `${orientation}-scroll`);
     }
 
     calc(e) {
-        const delta = this.options.orientation === 'horizontal' ? e.deltaX : e.deltaY;
+        const delta = (this.options.orientation === 'horizontal' && !this.options.deltaY) ? e.deltaX : e.deltaY;
 
         this.target += delta * -1;
 

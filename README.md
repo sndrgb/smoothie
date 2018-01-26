@@ -14,9 +14,15 @@ npm i smoothie-scroll --s
 
 ### Usage
 
-Init your Smoothie with `new Smoothie(options)` with the following options (if you want):
+Init your Smoothie with `new Smoothie(el, options)`  with el as smoothie wrapper
+
+```
+el: DOM element or DOM selector
+```
+and the following options (if you want)
 ```
 direction: 'vertical',
+deltaY: true, || default: false (if you want horizontal scroll with side delta on mouse/trackpad)
 ease: 0.075,
 prefix: prefix('transform'),
 listener: document.body,
