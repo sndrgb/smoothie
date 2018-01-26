@@ -60,7 +60,7 @@ class Scrollbar extends Component {
 
     update(current) {
         const size = this.dragHeight;
-        const bounds = this.options.orientation === 'vertical' ? this.getState('height') : this.options.width;
+        const bounds = this.options.orientation === 'vertical' ? this.getState('height') : this.getState('width');
         const value = (Math.abs(current) / (this.getState('bounding') / (bounds - size))) + (size / 0.5) - size;
         const clamp = Math.round(Math.max(0, Math.min(value - size, value + size)));
 

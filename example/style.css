@@ -96,12 +96,20 @@ img {
 }
 
 .nested-container .scrollbar-track {
+    position: absolute;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 10px;
     background: white;
     z-index: 2;
 }
 
-.nested-container .scrollbar::after {
-    background: firebrick;
+.nested-container .scrollbar {
+    height: 100%;
+    background: red;
 }
 
 #switch {

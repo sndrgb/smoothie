@@ -7,13 +7,13 @@ function init() {
         listener: document.querySelector('.smoothie-container')
     });
     smoothie.init(1000);
+    smoothie.stop();
 
     nested = new Smoothie('.nested', {
         orientation: 'horizontal',
         listener: document.querySelector('.nested-container')
     });
     nested.init();
-    nested.stop();
 }
 
 init();
