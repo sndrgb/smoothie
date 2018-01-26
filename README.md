@@ -21,8 +21,8 @@ el: DOM element or DOM selector
 ```
 and the following options (if you want)
 ```
-direction: 'vertical',
-deltaY: true, || default: false (if you want horizontal scroll with side delta on mouse/trackpad)
+orientation: 'vertical',
+deltaX: true, || default: false (if you want horizontal scroll with side delta on mouse/trackpad)
 ease: 0.075,
 prefix: prefix('transform'),
 listener: document.body,
